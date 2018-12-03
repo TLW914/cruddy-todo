@@ -15,11 +15,15 @@ const zeroPaddedNumber = (num) => {
   return sprintf('%05d', num);
 };
 
+//readCounter is called in getNextUniqueID with the callback 
+//that we defined in it
 const readCounter = (callback) => {
+  //exports.counterFile = filepath
   fs.readFile(exports.counterFile, (err, fileData) => {
     if (err) {
       callback(null, 0);
     } else {
+      //turns fileData text into a number which becomes our ID
       callback(null, Number(fileData));
     }
   });
@@ -31,6 +35,8 @@ const writeCounter = (count, callback) => {
     if (err) {
       throw ('error writing counter');
     } else {
+      //runs the callback that we passed into writeCounter
+      //i.e - callback that was passed into getNextUniqueId
       callback(null, counterString);
     }
   });
@@ -38,9 +44,26 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+//getNextUniqueID is called from index.js with a callback (***TBD)
+// Invoked due to user action for create, i.e. clicking on "add button"
+exports.getNextUniqueId = (callback) => {
+  //we call readCounter and define our own callback which needs to take in err and our fileData(id)
+  readCounter(function(err, id) { 
+    //if err, do nothing
+    if (err) {
+      console.log(err);
+    } else {
+      //update our id(which was turned into a number in readCounter)
+      var updatedID = id + 1;
+      //invoke writeCounter with the updatedID
+      //and the callback that is passed into this function 
+      //(which was defined in index.js when this function was invoked)
+      writeCounter(updatedID, callback)
+      //return our zeroPadded number
+      return zeroPaddedNumber(updatedID);
+
+    }
+  });
 };
 
 
