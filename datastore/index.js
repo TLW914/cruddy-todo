@@ -28,23 +28,6 @@ exports.create = (text, callback) => {
     }
   });
 };
-/*
-[
-         {
-      -    "id": 0
-      -    "text": "00001.txt"
-      +    "id": "00001"
-      +    "text": "00001"
-         }
-         {
-      -    "id": 1
-      -    "text": "00002.txt"
-      +    "id": "00002"
-      +    "text": "00002"
-         }
-       ]
-
-*/
 
 exports.readAll = (callback) => {
   var data = [];
@@ -63,37 +46,40 @@ exports.readAll = (callback) => {
   return data;
 };
 
+// We are trying to read the contents of ONE of our files.
 exports.readOne = (id, callback) => {
-
-  // We are trying to read the contents of ONE of our files.
-
   // Invoke the fs.readFile and pass in the filepath of the specific id
   fs.readFile(path.join(exports.dataDir, id + '.txt'), function(err, contents) {
     if (err) {
+      // On error, invoke the callback and pass the err as an argument
       callback(err);
     } else {
+      // On successful read, invoke the callback
       callback(null, {id, text: contents.toString()});
     }
   });
-  // On error, invoke the callback and pass the err as an argument
-  // On successful read, invoke the callback
-
-  // var text = items[id];
-  // if (!text) {
-  //   callback(new Error(`No item with id: ${id}`));
-  // } else {
-  //   callback(null, { id, text });
-  // }
 };
 
 exports.update = (id, text, callback) => {
-  var item = items[id];
-  if (!item) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    items[id] = text;
-    callback(null, { id, text });
-  }
+  // fs.readFile based on id
+  fs.readFile(path.join(exports.dataDir, id + '.txt'), function(err, contents){
+    if (err) {
+      // callback on err
+      callback(err);
+    } else {
+      // callback on success
+      // fs.writeFile based on id new text
+      fs.writeFile(path.join(exports.dataDir, id + '.txt'), text, function(err){
+        if (err) {
+          // callback on err
+          callback(err);
+        } else {
+          // call back on success
+          callback(null, {id, text});
+        }
+      });
+    }
+  });
 };
 
 exports.delete = (id, callback) => {
