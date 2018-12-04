@@ -36,7 +36,7 @@ const writeCounter = (count, callback) => {
       throw ('error writing counter');
     } else {
       //runs the callback that we passed into writeCounter
-      //i.e - callback that was passed into getNextUniqueId
+      //i.e - callback that we created in getNextUniqueId
       callback(null, counterString);
     }
   });
@@ -49,16 +49,27 @@ const writeCounter = (count, callback) => {
 exports.getNextUniqueId = (callback) => {
   //we call readCounter and define our own callback which needs to take in err and our fileData(id)
   readCounter(function(err, id) { 
-    //if err, do nothing
+    //if err, do nothing 
+      // (this will never error out 
+        // --will always be null as defined above if an error)
     if (err) {
-      console.log(err);
+      //console.log(err);
+        //will pass error back up to the user
+      callback(err)
     } else {
       //update our id(which was turned into a number in readCounter)
       var updatedID = id + 1;
       //invoke writeCounter with the updatedID
       //and the callback that is passed into this function 
       //(which was defined in index.js when this function was invoked)
-      writeCounter(updatedID, callback)
+        //define our own callback below to pass into writeCounter
+      writeCounter(updatedID, function(err, counter) {
+        if (err) {
+          callback(err);
+        } else {
+          callback(null, counter);
+        }
+      });
       //return our zeroPadded number
       return zeroPaddedNumber(updatedID);
 
