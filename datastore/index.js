@@ -62,14 +62,14 @@ exports.readOne = (id, callback) => {
 
 exports.update = (id, text, callback) => {
   // fs.readFile based on id
-  fs.readFile(path.join(exports.dataDir, id + '.txt'), function(err, contents){
+  fs.readFile(path.join(exports.dataDir, id + '.txt'), function(err, contents) {
     if (err) {
       // callback on err
       callback(err);
     } else {
       // callback on success
       // fs.writeFile based on id new text
-      fs.writeFile(path.join(exports.dataDir, id + '.txt'), text, function(err){
+      fs.writeFile(path.join(exports.dataDir, id + '.txt'), text, function(err) {
         if (err) {
           // callback on err
           callback(err);
@@ -84,25 +84,14 @@ exports.update = (id, text, callback) => {
 
 exports.delete = (id, callback) => {
   // invoke fs.unlink with filepath w/ id
-    // invoke callback on error
-
-
-    fs.unlink(path.join(exports.dataDir, id +'.txt'),function(err) {
-      if (err) {
-        callback(err);
-      }else {
-        callback();
-      }
-    });
-
-  // var item = items[id];
-  // delete items[id];
-  // if (!item) {
-  //   // report an error if item not found
-  //   callback(new Error(`No item with id: ${id}`));
-  // } else {
-  //   callback();
-  // }
+  // invoke callback on error
+  fs.unlink(path.join(exports.dataDir, id + '.txt'), function(err) {
+    if (err) {
+      callback(err);
+    } else {
+      callback();
+    }
+  });
 };
 
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
