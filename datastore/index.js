@@ -48,7 +48,7 @@ exports.create = (text, callback) => {
 
 exports.readAll = (callback) => {
   var data = [];
-  //iterate through files in data
+  //iterate through files in data and build an array of objects that stores ids/texts
   fs.readdir(exports.dataDir, function(err, files) {
     if (err) {
       callback(err);
@@ -64,12 +64,26 @@ exports.readAll = (callback) => {
 };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+
+  // We are trying to read the contents of ONE of our files.
+
+  // Invoke the fs.readFile and pass in the filepath of the specific id
+  fs.readFile(path.join(exports.dataDir, id + '.txt'), function(err, contents) {
+    if (err) {
+      callback(err);
+    } else {
+      callback(null, {id, text: contents.toString()});
+    }
+  });
+  // On error, invoke the callback and pass the err as an argument
+  // On successful read, invoke the callback
+
+  // var text = items[id];
+  // if (!text) {
+  //   callback(new Error(`No item with id: ${id}`));
+  // } else {
+  //   callback(null, { id, text });
+  // }
 };
 
 exports.update = (id, text, callback) => {
