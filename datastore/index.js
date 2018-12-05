@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
+const readFileAsync = Promise.promisify(require('fs').readFile);
 
 // var items = {};
 
@@ -30,20 +32,40 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  var data = [];
-  //iterate through files in data and build an array of objects that stores ids/texts
+  //read through our directory data file, taking in each filepath and a callback on errors and files in data array
   fs.readdir(exports.dataDir, function(err, files) {
+    //if error
     if (err) {
-      callback(err);
-    } else {
-      _.each(files, (text, id) => {
-        id = text.split('.')[0];
-        data.push({ id, text: id });
-      });
-      callback(null, data);
+      //return callback error
+      return callback(err);
     }
+    //create an array of promises - a promise for each file
+    var data = _.map(files, (file) => {
+      //each file has a filepath
+      var filePath = path.join(exports.dataDir, file);
+      //and an id
+      var id = file.split('.')[0];
+      //return a promise that is our
+      //promisified readFile function taking in the filepath and a callback --this creates our array of promises
+      //that when readFileAsync's promise resolves, we ".then" return our object
+      return readFileAsync(filePath).then(function(text){
+        return { id: id, text: text.toString() }
+      });
+    });
+    // promise.all --- runs through our array of promises (data) and returns a promise
+  //once all promises in data have resolved, ".then" invoke callback on all of the
+  //items in the array
+    Promise.all(data).then(function(items) {
+      callback(null, items);
+    });
   });
-  return data;
+  
+  // Read Directory
+  // Promisify readFile to read file
+  // get TEXT and ID from readFile
+  // Return A Promise
+  // add promise to array
+  // Promise.all(array).then (function(todos) {callback(null, todos)})
 };
 
 // We are trying to read the contents of ONE of our files.
